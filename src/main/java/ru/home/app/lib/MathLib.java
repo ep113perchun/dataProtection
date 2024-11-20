@@ -1,28 +1,31 @@
-package ru.home.app;
+package ru.home.app.lib;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class MathLib {
+    private static final SecureRandom secureRandom = new SecureRandom();
     /**
-     * Метод вычисляет расширенный алгоритм Евклида.
-     * Возвращает массив из трёх значений:
-     * - u1: наибольший общий делитель (НОД) чисел a и b
-     * - u2: коэффициент при a
-     * - u3: коэффициент при b
+     * Расширенный алгоритм Евклида. Находит НОД `a` и `b`, а также коэффициенты `x` и `y`,
+     * такие, что a * x + b * y = gcd(a, b).
      *
-     * @param a первое число
-     * @param b второе число
-     * @return массив {u1, u2, u3}, где u1 — НОД, u2 и u3 — коэффициенты
+     * cd + bp  = 1
+     * cd = 1 + bp
+     * cd mod p = 1
+     *
+     * @param a Первое число.
+     * @param b Второе число.
+     * @return Массив из трех элементов: НОД, коэффициент `x`, коэффициент `y`.
      */
-    public static int[] extendedGCD(int a, int b) {
-        int u1 = a, u2 = 1, u3 = 0;
-        int v1 = b, v2 = 0, v3 = 1;
+    public static long[] extendedGCD(long a, long b) {
+        long u1 = a, u2 = 1, u3 = 0;
+        long v1 = b, v2 = 0, v3 = 1;
 
         while (v1 != 0) {
-            int q = u1 / v1;
-            int t1 = u1 % v1;
-            int t2 = u2 - q * v2;
-            int t3 = u3 - q * v3;
+            long q = u1 / v1;
+            long t1 = u1 % v1;
+            long t2 = u2 - q * v2;
+            long t3 = u3 - q * v3;
 
             u1 = v1;
             u2 = v2;
@@ -31,7 +34,7 @@ public class MathLib {
             v2 = t2;
             v3 = t3;
         }
-        return new int[]{u1, u2, u3};
+        return new long[]{u1, u2, u3};
     }
 
     /**
@@ -72,16 +75,16 @@ public class MathLib {
     }
 
     /**
-     * Находит взаимно простое число с `phi` в диапазоне [2, phi - 1].
+     * Находит число, взаимно простое с `phi`.
      *
-     * @param phi Значение функции Эйлера.
-     * @return Взаимно простое число.
+     * @param phi Число, для которого нужно найти взаимно простое значение.
+     * @return Взаимно простое значение.
      */
-    public static int findCoprime(int phi) {
+    public static long findCoprime(long phi) {
         Random random = new Random();
         while (true) {
-            int candidate = 2 + random.nextInt(phi - 2);
-            int[] gcdResult = extendedGCD(candidate, phi);
+            long candidate = 2 + (long)(random.nextDouble() * (phi - 2));
+            long[] gcdResult = extendedGCD(candidate, phi);
             if (gcdResult[0] == 1) {  // Проверка на НОД = 1
                 return candidate;
             }
@@ -89,17 +92,17 @@ public class MathLib {
     }
 
     /**
-     * Вычисляет мультипликативную обратную величину `а` по модулю `m`.
+     * Вычисляет мультипликативную обратную величину `a` по модулю `m`.
      *
-     * @param a Число.
+     * @param a Число, для которого ищется обратное по модулю `m`.
      * @param m Модуль.
      * @return Обратное по модулю `m`.
      * @throws IllegalArgumentException если `a` и `m` не взаимно простые.
      */
-    public static int modularInverse(int a, int m) {
-        int[] gcdResult = extendedGCD(a, m);
-        int gcd = gcdResult[0];
-        int x = gcdResult[1];
+    public static long modularInverse(long a, long m) {
+        long[] gcdResult = extendedGCD(a, m);
+        long gcd = gcdResult[0];
+        long x = gcdResult[1];
         if (gcd != 1) {
             throw new IllegalArgumentException("Обратного элемента не существует");
         }
@@ -193,12 +196,12 @@ public class MathLib {
      *
      * @return Вероятно простое число.
      */
-    public static int generateRandomPrime() {
+    public static long generateRandomPrime() {
         Random random = new Random();
-        int p;
+        long p;
         do {
             p = 1_000_000 + random.nextInt(1_000_000_000 - 1_000_000);
-        } while (!testFerma(p, 100));
+        } while (!millerRabinTest(p, 100));
         return p;
     }
 
@@ -211,5 +214,34 @@ public class MathLib {
      */
     private static long gcd(long a, long b) {
         return b == 0 ? a : gcd(b, a % b);
+    }
+
+    public static long generatePrimeLong() {
+        while (true) {
+            long candidate = 100 + secureRandom.nextLong() % 999901;
+            candidate = Math.abs(candidate) | 1;
+            if (isPrime(candidate)) {
+                return candidate;
+            }
+        }
+    }
+
+    /**
+     * Проверка на простоту
+     * @param n число на проверку
+     * @return является ли число простым
+     */
+    public static boolean isPrime(long n) {
+        if (n < 2) return false;
+        if (n == 2 || n == 3) return true;
+        if (n % 2 == 0) return false;
+
+        long sqrt = (long) Math.sqrt(n);
+        for (long i = 3; i <= sqrt; i += 2) {
+            if (n % i == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

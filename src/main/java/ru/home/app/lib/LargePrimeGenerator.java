@@ -1,74 +1,57 @@
-package ru.home.app.lib;
-import java.security.SecureRandom;
-
-public class FermatPrimeCheck {
-    private static final SecureRandom random = new SecureRandom();
-
-    public static void main(String[] args) {
-        long number = 2147483647L; // Пример числа для проверки
-        int iterations = 10; // Количество итераций проверки
-
-        if (isPrimeFermat(number, iterations)) {
-            System.out.println(number + " вероятно простое (по тесту Ферма).");
-        } else {
-            System.out.println(number + " составное.");
-        }
-    }
-
-    /**
-     * Тест Ферма для проверки простоты числа
-     *
-     * @param n          Число для проверки
-     * @param iterations Количество итераций (чем больше, тем выше точность)
-     * @return true, если число вероятно простое, иначе false
-     */
-    public static boolean isPrimeFermat(long n, int iterations) {
-        // Числа меньше 2 не являются простыми
-        if (n < 2) return false;
-
-        // Числа 2 и 3 сразу считаются простыми
-        if (n == 2 || n == 3) return true;
-
-        // Четные числа не могут быть простыми
-        if (n % 2 == 0) return false;
-
-        for (int i = 0; i < iterations; i++) {
-            // Случайное число a в диапазоне [2, n-2]
-            long a = 2 + random.nextLong() % (n - 3);
-            if (a < 2) a = 2; // Корректируем отрицательное значение, если возникло
-
-            // Проверяем условие теста Ферма: a^(n-1) ≡ 1 (mod n)
-            if (modularExponentiation(a, n - 1, n) != 1) {
-                return false; // Число составное
-            }
-        }
-
-        return true; // Вероятно простое
-    }
-
-    /**
-     * Быстрое возведение в степень по модулю
-     *
-     * @param base  Основание
-     * @param exp   Показатель степени
-     * @param mod   Модуль
-     * @return (base^exp) % mod
-     */
-    public static long modularExponentiation(long base, long exp, long mod) {
-        long result = 1;
-        base = base % mod;
-
-        while (exp > 0) {
-            // Если степень нечетная, умножаем на результат
-            if ((exp & 1) == 1) {
-                result = (result * base) % mod;
-            }
-
-            // Увеличиваем степень (делим на 2)
-            exp >>= 1;
-            base = (base * base) % mod;
-        }
-
-        return result;
-    }
-}
+//package ru.home.app.lib;
+//import java.security.SecureRandom;
+//
+//public class LargePrimeGenerator {
+//    private static final SecureRandom random = new SecureRandom();
+//
+//    public static void main(String[] args) {
+//        long q, p;
+//
+//        while (true) {
+//            // Генерация случайного простого числа q
+//            q = generatePrimeLong();
+//
+//            // Проверка, не превышает ли 2q + 1 значение long
+//            if (q > (Long.MAX_VALUE - 1) / 2) {
+//                continue; // Пропускаем, если p выйдет за пределы long
+//            }
+//
+//            // Вычисление p = 2q + 1
+//            p = 2 * q + 1;
+//
+//            // Проверка, является ли p простым
+//            if (isPrime(p)) {
+//                break; // Найдены подходящие p и q
+//            }
+//        }
+//
+//        System.out.println("q = " + q);
+//        System.out.println("p = " + p);
+//    }
+//
+//    // Метод для генерации случайного простого числа типа long
+//    private static long generatePrimeLong() {
+//        while (true) {
+//            // Генерация случайного числа в диапазоне положительных long
+//            long candidate = (random.nextLong() & Long.MAX_VALUE) | 1; // Делаем число нечетным
+//            if (isPrime(candidate)) {
+//                return candidate;
+//            }
+//        }
+//    }
+//
+//    // Проверка, является ли число простым
+//    private static boolean isPrime(long n) {
+//        if (n < 2) return false;
+//        if (n == 2 || n == 3) return true;
+//        if (n % 2 == 0) return false;
+//
+//        long sqrt = (long) Math.sqrt(n);
+//        for (long i = 3; i <= sqrt; i += 2) {
+//            if (n % i == 0) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+//}
